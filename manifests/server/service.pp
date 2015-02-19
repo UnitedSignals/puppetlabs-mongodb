@@ -9,6 +9,7 @@ class mongodb::server::service {
   $port             = $mongodb::server::port
   $configsvr        = $mongodb::server::configsvr
   $shardsvr         = $mongodb::server::shardsvr
+  $manage_service   = $mongodb::server::manage_service
 
   if !$port {
     if $configsvr {
@@ -35,21 +36,23 @@ class mongodb::server::service {
     default => true
   }
 
-  service { 'mongodb':
-    ensure    => $service_ensure,
-    name      => $service_name,
-    enable    => $service_enable,
-    provider  => $service_provider,
-    hasstatus => true,
-    status    => $service_status,
-  }
+  if $manage_service {
+    service { 'mongodb':
+      ensure    => $service_ensure,
+      name      => $service_name,
+      enable    => $service_enable,
+      provider  => $service_provider,
+      hasstatus => true,
+      status    => $service_status,
+    }
 
-  if $service_ensure {
-    mongodb_conn_validator { 'mongodb':
-      server  => $bind_ip_real,
-      port    => $port_real,
-      timeout => '240',
-      require => Service['mongodb'],
+    if $service_ensure {
+      mongodb_conn_validator { 'mongodb':
+        server  => $bind_ip_real,
+        port    => $port_real,
+        timeout => '240',
+        require => Service['mongodb'],
+      }
     }
   }
 }
