@@ -88,6 +88,14 @@ class mongodb::server::config {
       notify  => Class['mongodb::server::service']
     }
 
+    file { '/etc/default/mongod':
+      content => template('mongodb/mongod.erb'),
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0644',
+      notify  => Class['mongodb::server::service'],
+    }
+
     file { $dbpath:
       ensure  => directory,
       mode    => '0755',
